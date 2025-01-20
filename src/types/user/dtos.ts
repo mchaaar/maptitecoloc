@@ -1,15 +1,20 @@
 import { Expose } from "class-transformer";
-import { UserEntity } from "../../databases/mysql/user.entity";
-import { IsString, isString } from "class-validator";
+import { IsString } from "class-validator";
 
 export class UserToCreateDTO {
   @Expose()
   @IsString()
-  firstname: UserEntity['firstname'];
+  firstname: string;
 
-  // à vous de jouer
+  @Expose()
+  @IsString()
   lastname: string;
+
+  @Expose()
+  @IsString()
   email: string;
+
+  @Expose()
+  @IsString()
   password: string;
-  // ....
 }

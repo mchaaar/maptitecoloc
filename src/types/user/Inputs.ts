@@ -1,17 +1,20 @@
 import { Expose } from "class-transformer";
 import { IsString } from "class-validator";
-import { UserEntity } from "../../databases/mysql/user.entity";
 
 export class userToCreateInput {
   @Expose()
   @IsString()
-  firstname: UserEntity['firstname'];
+  firstname: string;
 
-  // à vous de jouer
+  @Expose()
+  @IsString()
   lastname: string;
+
+  @Expose()
+  @IsString()
   email: string;
 
   @Expose()
   @IsString()
-  password_hash: UserEntity['password_hash'];
+  password_hash: string;
 }
