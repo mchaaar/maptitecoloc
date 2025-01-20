@@ -1,5 +1,5 @@
 import { Expose } from "class-transformer";
-import { IsString } from "class-validator";
+import { IsString, IsEmail } from "class-validator";
 
 export class UserToCreateDTO {
   @Expose()
@@ -12,6 +12,7 @@ export class UserToCreateDTO {
 
   @Expose()
   @IsString()
+  @IsEmail({}, { message: "Invalid email format" })
   email: string;
 
   @Expose()

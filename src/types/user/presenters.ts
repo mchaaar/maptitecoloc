@@ -1,5 +1,5 @@
 import { Expose } from "class-transformer";
-import { IsNumber, IsString } from "class-validator";
+import { IsString, IsBoolean, IsInt } from "class-validator";
 
 export class UserPresenter {
   @Expose()
@@ -19,6 +19,14 @@ export class UserPresenter {
   email: string;
 
   @Expose()
-  @IsString()
+  @IsBoolean()
   isActive: boolean;
+
+  @Expose()
+  @IsString()
+  phone: string;
+
+  @Expose()
+  @IsInt()
+  age: number;
 }
