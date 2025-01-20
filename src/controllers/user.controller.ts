@@ -5,7 +5,6 @@ import { UserService } from "../services/user.service";
 import { UserToCreateDTO, UserLoginDTO } from "../types/user/dtos";
 import { UserPresenter } from "../types/user/presenters";
 import { IUser } from "../databases/mongodb/user.model";
-import { UserModel } from "../databases/mongodb/user.model";
 
 const userService = new UserService();
 
@@ -13,11 +12,11 @@ interface AuthRequest extends Request {
   user?: IUser;
 }
 
-function formatValidationErrors(validationErrors: any[]) {
+function formatValidationErrors(validationErrors: any[]): Array<{ field: string; message: string }> {
   return validationErrors.map((err) => {
     const field = err.property;
     const constraints = Object.values(err.constraints);
-    return { field, message: constraints[0] };
+    return { field, message: constraints[0] as string };
   });
 }
 
@@ -80,6 +79,7 @@ export const loginUser = async (
     const loginDTO = plainToInstance(UserLoginDTO, req.body, {
       excludeExtraneousValues: true,
     });
+
     const dtoErrors = await validate(loginDTO);
     if (dtoErrors.length > 0) {
       const errorResponse = {
@@ -160,7 +160,7 @@ export const refreshToken = async (
       throw err;
     }
 
-    const user = await UserModel.findById(payload.userId);
+    const user = await userService.findById(payload.userId);
     if (!user || !user.isActive) {
       const err: any = new Error("User not found or inactive");
       err.statusCode = 404;
@@ -193,17 +193,16 @@ export const getMe = async (
       throw err;
     }
 
-    const user = req.user;
     const userPresenter = plainToInstance(
       UserPresenter,
       {
-        id: user._id,
-        firstname: user.firstname,
-        lastname: user.lastname,
-        email: user.email,
-        age: user.age,
-        photo: user.photo,
-        isActive: user.isActive,
+        id: req.user._id,
+        firstname: req.user.firstname,
+        lastname: req.user.lastname,
+        email: req.user.email,
+        age: req.user.age,
+        photo: req.user.photo,
+        isActive: req.user.isActive,
       },
       { excludeExtraneousValues: true }
     );

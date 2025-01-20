@@ -1,4 +1,4 @@
-import { UserModel, IUser } from "../databases/mongodb/user.model";
+import { IUser } from "../databases/mongodb/user.model";
 import { UserToCreateDTO } from "../types/user/dtos";
 import { AuthService } from "./auth.service";
 import { UserRepository } from "../repositories/user.repository";
@@ -12,7 +12,7 @@ export class UserService {
     this.userRepository = new UserRepository();
   }
 
-  async registerUser(data: UserToCreateDTO): Promise<IUser> {
+  public async registerUser(data: UserToCreateDTO): Promise<IUser> {
     const existing = await this.userRepository.findByEmail(data.email);
     if (existing) {
       const error: any = new Error("Email already in use");
@@ -36,19 +36,26 @@ export class UserService {
     return user;
   }
 
-  async findByEmail(email: string): Promise<IUser | null> {
+  public async findByEmail(email: string): Promise<IUser | null> {
     return this.userRepository.findByEmail(email);
   }
 
-  async validateUserPassword(plainPassword: string, hashedPassword: string): Promise<boolean> {
+  public async findById(userId: string): Promise<IUser | null> {
+    return this.userRepository.findById(userId);
+  }
+
+  public async validateUserPassword(
+    plainPassword: string,
+    hashedPassword: string
+  ): Promise<boolean> {
     return this.authService.comparePasswords(plainPassword, hashedPassword);
   }
 
-  async deleteUser(userId: string): Promise<void> {
+  public async deleteUser(userId: string): Promise<void> {
     await this.userRepository.deactivateUser(userId);
   }
 
-  generateTokens(user: IUser) {
+  public generateTokens(user: IUser) {
     const payload = {
       userId: user._id,
       email: user.email,
@@ -59,7 +66,7 @@ export class UserService {
     return { accessToken, refreshToken };
   }
 
-  verifyRefreshToken(token: string) {
+  public verifyRefreshToken(token: string) {
     return this.authService.verifyRefreshToken(token);
   }
 }
