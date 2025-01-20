@@ -1,8 +1,19 @@
 import { Router } from "express";
-import * as userController from "../../controllers/user.controller";
+import {
+  registerUser,
+  loginUser,
+  refreshToken,
+  getMe,
+  deleteUser,
+} from "../../controllers/user.controller";
+import { authMiddleware } from "../../middlewares/auth.middleware";
 
-const routes = Router();
+const router = Router();
 
-routes.post("/register", userController.registerUser);
+router.post("/register", registerUser);
+router.post("/login", loginUser);
+router.post("/refresh", refreshToken);
+router.get("/getMe", authMiddleware, getMe);
+router.delete("/delete", authMiddleware, deleteUser);
 
-export default routes;
+export default router;

@@ -16,13 +16,24 @@ app.get("/", (req, res) => {
 app.use("/api/users", userRoutes);
 
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.log(err);
+  console.error(err);
 
+  /**
+   * By default:
+   * {
+   *   statusCode: 500,
+   *   errorCode: "INTERNAL_SERVER_ERROR",
+   *   errMessage: "An unexpected error occurred"
+   * }
+   */
   const statusCode = err.statusCode || 500;
+  const errorCode = err.code || "INTERNAL_SERVER_ERROR";
+  const errMessage = err.message || "An unexpected error occurred";
+
   res.status(statusCode).json({
     statusCode,
-    errorCode: err.code || "INTERNAL_SERVER_ERROR",
-    message: err.message || "An unexpected error occurred",
+    errorCode,
+    errMessage,
   });
 });
 
