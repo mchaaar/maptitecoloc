@@ -168,10 +168,12 @@ export const refreshToken = async (
       throw err;
     }
 
-    const newAccessToken = userService.generateTokens(user).accessToken;
+    const { accessToken, refreshToken: newRefreshToken } =
+      userService.generateTokens(user);
 
     res.status(200).json({
-      accessToken: newAccessToken,
+      accessToken,
+      refreshToken: newRefreshToken,
     });
   } catch (error) {
     next(error);
