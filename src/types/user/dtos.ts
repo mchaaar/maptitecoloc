@@ -11,9 +11,10 @@ export class UserToCreateDTO {
   @IsString()
   @IsNotEmpty()
   lastname: string;
-
+  
   @Expose()
-  @IsEmail()
+  @IsString()
+  @IsEmail({}, { message: "Invalid email format" })
   email: string;
 
   @Expose()
