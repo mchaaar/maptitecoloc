@@ -1,4 +1,5 @@
-import { RequestHandler } from "express";
+import { Response, NextFunction } from "express";
+import { AuthRequest } from "../types/express/AuthRequest"; 
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 import { ChargeService } from "../services/charge.service";
@@ -15,12 +16,13 @@ function formatValidationErrors(validationErrors: any[]): Array<{ field: string;
   });
 }
 
-export const createCharge: RequestHandler = async (req, res, next) => {
+export const createCharge = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
-    const dto = plainToInstance(CreateChargeDTO, req.body, {
-      excludeExtraneousValues: true,
-    });
-
+    const dto = plainToInstance(CreateChargeDTO, req.body, { excludeExtraneousValues: true });
     const errors = await validate(dto);
     if (errors.length > 0) {
       res.status(400).json({
@@ -57,17 +59,19 @@ export const createCharge: RequestHandler = async (req, res, next) => {
     presenter.isActive = charge.isActive;
 
     res.status(201).json(presenter);
-    return;
   } catch (error) {
     next(error);
   }
 };
 
-export const listChargesForColocation: RequestHandler = async (req, res, next) => {
+export const listChargesForColocation = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const colocationId = req.params.colocationId;
-
-    if (!req.user || !req.user._id) {
+    if (!req.user?._id) {
       res.status(401).json({
         statusCode: 401,
         errorCode: "UNAUTHORIZED",
@@ -95,18 +99,18 @@ export const listChargesForColocation: RequestHandler = async (req, res, next) =
     });
 
     res.status(200).json(results);
-    return;
   } catch (error) {
     next(error);
   }
 };
 
-export const softDeleteCharge: RequestHandler = async (req, res, next) => {
+export const softDeleteCharge = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
-    const dto = plainToInstance(SoftDeleteChargeDTO, req.body, {
-      excludeExtraneousValues: true,
-    });
-
+    const dto = plainToInstance(SoftDeleteChargeDTO, req.body, { excludeExtraneousValues: true });
     const errors = await validate(dto);
     if (errors.length > 0) {
       res.status(400).json({
@@ -118,7 +122,7 @@ export const softDeleteCharge: RequestHandler = async (req, res, next) => {
       return;
     }
 
-    if (!req.user || !req.user._id) {
+    if (!req.user?._id) {
       res.status(401).json({
         statusCode: 401,
         errorCode: "UNAUTHORIZED",
@@ -129,7 +133,6 @@ export const softDeleteCharge: RequestHandler = async (req, res, next) => {
 
     const userId = req.user._id.toString();
     const deleted = await chargeService.softDeleteCharge(userId, dto.chargeId);
-
     if (!deleted) {
       res.status(404).json({
         statusCode: 404,
@@ -142,7 +145,6 @@ export const softDeleteCharge: RequestHandler = async (req, res, next) => {
     res.status(200).json({
       message: "Charge soft-deleted successfully",
     });
-    return;
   } catch (error) {
     next(error);
   }
