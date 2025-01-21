@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import userRoutes from "./routes/user/user.routes";
+import colocationRoutes from "./routes/colocation/colocation.routes";
 import taskRoutes from "./routes/user/task.routes";
 
 
@@ -16,7 +17,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/users", userRoutes);
-
+app.use("/api/colocations", colocationRoutes);
 app.use("/api/tasks", taskRoutes);
 
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

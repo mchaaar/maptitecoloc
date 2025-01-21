@@ -1,5 +1,5 @@
 import { Expose } from "class-transformer";
-import { IsEmail, IsNotEmpty, IsString, MinLength, IsInt, Min, IsDateString, IsEnum} from "class-validator";
+import { IsEmail, IsNotEmpty, IsString, MinLength, IsInt, Min, IsDateString, IsEnum } from "class-validator";
 
 export class UserToCreateDTO {
   @Expose()
@@ -11,7 +11,7 @@ export class UserToCreateDTO {
   @IsString()
   @IsNotEmpty()
   lastname: string;
-  
+
   @Expose()
   @IsString()
   @IsEmail({}, { message: "Invalid email format" })

@@ -1,6 +1,9 @@
-import { Request } from "express";
-import { IUser } from "../../databases/mongodb/user.model";
+import { User } from "../types/user";
 
-export interface AuthRequest extends Request {
-  user?: IUser;
+declare global {
+  namespace Express {
+    interface Request {
+      user?: User;
+    }
+  }
 }
