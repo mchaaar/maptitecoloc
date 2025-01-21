@@ -3,10 +3,11 @@ import cors from "cors";
 import helmet from "helmet";
 import "reflect-metadata";
 
+import { requestLogger } from "./middlewares/requestLogger.middleware";
+
 import userRoutes from "./routes/user/user.routes";
 import colocationRoutes from "./routes/colocation/colocation.routes";
 import taskRoutes from "./routes/user/task.routes"; 
-
 import chargeRoutes from "./routes/charge/charge.routes";
 import paymentRoutes from "./routes/payment/payment.routes";
 
@@ -16,6 +17,8 @@ app.use(express.json());
 app.use(cors());
 app.use(helmet());
 
+app.use(requestLogger);
+
 app.get("/", (req, res) => {
   throw new Error("Il n'y a rien d'implémenté dans cette route, à vous de jouer !");
 });
@@ -23,7 +26,6 @@ app.get("/", (req, res) => {
 app.use("/api/users", userRoutes);
 app.use("/api/colocations", colocationRoutes);
 app.use("/api/tasks", taskRoutes);
-
 app.use("/api/charges", chargeRoutes);
 app.use("/api/payments", paymentRoutes);
 
