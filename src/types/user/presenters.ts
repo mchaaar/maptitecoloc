@@ -29,3 +29,20 @@ export class UserPresenter {
   @IsInt()
   age: number;
 }
+
+export class TaskPresenter {
+  @Expose()
+  id: string;
+
+  @Expose()
+  name: string;
+
+  @Expose()
+  assignedTo: string;
+
+  @Expose()
+  dueDate: Date;
+
+  @Expose()
+  status: string;
+}

@@ -1,6 +1,7 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Types } from "mongoose";
 
 export interface ITask extends Document {
+  _id: Types.ObjectId;
   name: string;
   assignedTo: string;
   dueDate: Date;
