@@ -1,4 +1,3 @@
-// src/repositories/task.repository.ts
 import { Task, ITask } from "../databases/mongodb/task.model";
 
 export class TaskRepository {

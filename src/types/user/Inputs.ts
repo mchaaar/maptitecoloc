@@ -14,7 +14,6 @@ export class userToCreateInput {
   @IsString()
   @IsEmail({}, { message: "Invalid email format" })
   email: string;
-  
 
   @Expose()
   @IsString()
