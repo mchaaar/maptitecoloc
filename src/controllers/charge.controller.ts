@@ -20,6 +20,7 @@ export const createCharge: RequestHandler = async (req, res, next) => {
     const dto = plainToInstance(CreateChargeDTO, req.body, {
       excludeExtraneousValues: true,
     });
+
     const errors = await validate(dto);
     if (errors.length > 0) {
       res.status(400).json({
@@ -28,6 +29,7 @@ export const createCharge: RequestHandler = async (req, res, next) => {
         errMessage: "Validation failed",
         errorFields: formatValidationErrors(errors),
       });
+      return;
     }
 
     const userId = req.user?._id.toString();
@@ -37,6 +39,7 @@ export const createCharge: RequestHandler = async (req, res, next) => {
         errorCode: "UNAUTHORIZED",
         errMessage: "User not authenticated",
       });
+      return;
     }
 
     const charge = await chargeService.createCharge(userId, dto);
@@ -54,6 +57,7 @@ export const createCharge: RequestHandler = async (req, res, next) => {
     presenter.isActive = charge.isActive;
 
     res.status(201).json(presenter);
+    return;
   } catch (error) {
     next(error);
   }
@@ -63,15 +67,16 @@ export const listChargesForColocation: RequestHandler = async (req, res, next) =
   try {
     const colocationId = req.params.colocationId;
 
-    const userId = req.user?._id.toString();
-    if (!userId) {
+    if (!req.user || !req.user._id) {
       res.status(401).json({
         statusCode: 401,
         errorCode: "UNAUTHORIZED",
         errMessage: "User not authenticated",
       });
+      return;
     }
 
+    const userId = req.user._id.toString();
     const charges = await chargeService.getColocationCharges(userId, colocationId);
 
     const results = charges.map((c) => {
@@ -90,6 +95,7 @@ export const listChargesForColocation: RequestHandler = async (req, res, next) =
     });
 
     res.status(200).json(results);
+    return;
   } catch (error) {
     next(error);
   }
@@ -100,6 +106,7 @@ export const softDeleteCharge: RequestHandler = async (req, res, next) => {
     const dto = plainToInstance(SoftDeleteChargeDTO, req.body, {
       excludeExtraneousValues: true,
     });
+
     const errors = await validate(dto);
     if (errors.length > 0) {
       res.status(400).json({
@@ -108,17 +115,19 @@ export const softDeleteCharge: RequestHandler = async (req, res, next) => {
         errMessage: "Validation failed",
         errorFields: formatValidationErrors(errors),
       });
+      return;
     }
 
-    const userId = req.user?._id.toString();
-    if (!userId) {
+    if (!req.user || !req.user._id) {
       res.status(401).json({
         statusCode: 401,
         errorCode: "UNAUTHORIZED",
         errMessage: "User not authenticated",
       });
+      return;
     }
 
+    const userId = req.user._id.toString();
     const deleted = await chargeService.softDeleteCharge(userId, dto.chargeId);
 
     if (!deleted) {
@@ -127,9 +136,13 @@ export const softDeleteCharge: RequestHandler = async (req, res, next) => {
         errorCode: "CHARGE_NOT_FOUND",
         errMessage: "Charge not found or already inactive",
       });
+      return;
     }
 
-    res.status(200).json({ message: "Charge soft-deleted successfully" });
+    res.status(200).json({
+      message: "Charge soft-deleted successfully",
+    });
+    return;
   } catch (error) {
     next(error);
   }

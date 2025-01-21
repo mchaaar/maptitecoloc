@@ -31,19 +31,17 @@ export const registerUser = async (
     });
     const dtoErrors = await validate(userToCreateDTO);
     if (dtoErrors.length > 0) {
-      const errorResponse = {
+      res.status(400).json({
         statusCode: 400,
         errorCode: "VALIDATION_ERROR",
         errMessage: "Validation failed",
         form: "register",
         errorFields: formatValidationErrors(dtoErrors),
-      };
-      res.status(400).json(errorResponse);
+      });
       return;
     }
 
     const user = await userService.registerUser(userToCreateDTO);
-
     const { accessToken, refreshToken } = userService.generateTokens(user);
 
     const userPresenter = plainToInstance(
@@ -65,6 +63,7 @@ export const registerUser = async (
       accessToken,
       refreshToken,
     });
+    return;
   } catch (error) {
     next(error);
   }
@@ -82,14 +81,13 @@ export const loginUser = async (
 
     const dtoErrors = await validate(loginDTO);
     if (dtoErrors.length > 0) {
-      const errorResponse = {
+      res.status(400).json({
         statusCode: 400,
         errorCode: "VALIDATION_ERROR",
         errMessage: "Validation failed",
         form: "login",
         errorFields: formatValidationErrors(dtoErrors),
-      };
-      res.status(400).json(errorResponse);
+      });
       return;
     }
 
@@ -133,6 +131,7 @@ export const loginUser = async (
       accessToken,
       refreshToken,
     });
+    return;
   } catch (error) {
     next(error);
   }
@@ -144,7 +143,6 @@ export const refreshToken = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-
     const authHeader = req.headers.authorization;
     if (!authHeader) {
       const err: any = new Error("Refresh token is required");
@@ -184,6 +182,7 @@ export const refreshToken = async (
       accessToken,
       refreshToken: newRefreshToken,
     });
+    return;
   } catch (error) {
     next(error);
   }
@@ -217,6 +216,7 @@ export const getMe = async (
     );
 
     res.status(200).json(userPresenter);
+    return;
   } catch (error) {
     next(error);
   }
@@ -240,6 +240,7 @@ export const deleteUser = async (
     res.status(200).json({
       message: "User successfully deleted (soft delete).",
     });
+    return;
   } catch (error) {
     next(error);
   }

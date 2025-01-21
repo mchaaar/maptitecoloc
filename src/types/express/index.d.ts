@@ -1,9 +1,11 @@
-import { User } from "../types/user";
+import { IUser } from "../../databases/mongodb/user.model";
 
 declare global {
   namespace Express {
     interface Request {
-      user?: User;
+      user?: IUser;
     }
   }
 }
+
+export {};

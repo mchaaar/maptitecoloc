@@ -1,9 +1,10 @@
-import { RequestHandler } from "express";
+import { Request, Response, NextFunction } from "express";
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 import { PaymentService } from "../services/payment.service";
 import { CreatePaymentDTO } from "../types/finance/dtos";
 import { PaymentPresenter } from "../types/finance/presenters";
+import { IUser } from "../databases/mongodb/user.model";
 
 const paymentService = new PaymentService();
 
@@ -15,7 +16,13 @@ function formatValidationErrors(validationErrors: any[]): Array<{ field: string;
   });
 }
 
-export const createPayment: RequestHandler = async (req, res, next) => {
+type AuthRequest = Request & { user?: IUser };
+
+export const createPayment = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const dto = plainToInstance(CreatePaymentDTO, req.body, {
       excludeExtraneousValues: true,
@@ -28,7 +35,9 @@ export const createPayment: RequestHandler = async (req, res, next) => {
         errMessage: "Validation failed",
         errorFields: formatValidationErrors(errors),
       });
+      return;
     }
+
     const userId = req.user?._id.toString();
     if (!userId) {
       res.status(401).json({
@@ -36,6 +45,7 @@ export const createPayment: RequestHandler = async (req, res, next) => {
         errorCode: "UNAUTHORIZED",
         errMessage: "User not authenticated",
       });
+      return;
     }
 
     const payment = await paymentService.createPayment(userId, dto);
@@ -49,12 +59,17 @@ export const createPayment: RequestHandler = async (req, res, next) => {
     presenter.note = payment.note || null;
 
     res.status(201).json(presenter);
+    return;
   } catch (error) {
     next(error);
   }
 };
 
-export const listPaymentsForColocation: RequestHandler = async (req, res, next) => {
+export const listPaymentsForColocation = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const colocationId = req.params.colocationId;
 
@@ -65,6 +80,7 @@ export const listPaymentsForColocation: RequestHandler = async (req, res, next) 
         errorCode: "UNAUTHORIZED",
         errMessage: "User not authenticated",
       });
+      return;
     }
 
     const payments = await paymentService.getColocationPayments(userId, colocationId);
@@ -81,6 +97,7 @@ export const listPaymentsForColocation: RequestHandler = async (req, res, next) 
     });
 
     res.status(200).json(results);
+    return;
   } catch (error) {
     next(error);
   }

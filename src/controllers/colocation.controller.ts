@@ -1,4 +1,4 @@
-import { RequestHandler } from "express";
+import { Request, Response, NextFunction } from "express";
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 import { ColocationService } from "../services/colocation.service";
@@ -8,6 +8,7 @@ import {
   TransferOwnershipDTO,
 } from "../types/colocation/dtos";
 import { ColocationPresenter } from "../types/colocation/presenters";
+import { IUser } from "../databases/mongodb/user.model";
 
 const colocationService = new ColocationService();
 
@@ -19,7 +20,13 @@ function formatValidationErrors(validationErrors: any[]): Array<{ field: string;
   });
 }
 
-export const createColocation: RequestHandler = async (req, res, next) => {
+type AuthRequest = Request & { user?: IUser };
+
+export const createColocation = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const dto = plainToInstance(CreateColocationDTO, req.body, {
       excludeExtraneousValues: true,
@@ -37,6 +44,15 @@ export const createColocation: RequestHandler = async (req, res, next) => {
     }
 
     const userId = req.user?._id.toString();
+    if (!userId) {
+      res.status(401).json({
+        statusCode: 401,
+        errorCode: "UNAUTHORIZED",
+        errMessage: "User not authenticated",
+      });
+      return;
+    }
+
     const colocation = await colocationService.createColocation(userId, dto);
 
     const presenter = new ColocationPresenter();
@@ -52,14 +68,28 @@ export const createColocation: RequestHandler = async (req, res, next) => {
     presenter.isActive = colocation.isActive;
 
     res.status(201).json(presenter);
+    return;
   } catch (error) {
     next(error);
   }
 };
 
-export const listUserColocations: RequestHandler = async (req, res, next) => {
+export const listUserColocations = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const userId = req.user?._id.toString();
+    if (!userId) {
+      res.status(401).json({
+        statusCode: 401,
+        errorCode: "UNAUTHORIZED",
+        errMessage: "User not authenticated",
+      });
+      return;
+    }
+
     const colocations = await colocationService.getUserColocations(userId);
 
     const results = colocations.map((coloc) => {
@@ -78,14 +108,28 @@ export const listUserColocations: RequestHandler = async (req, res, next) => {
     });
 
     res.status(200).json(results);
+    return;
   } catch (error) {
     next(error);
   }
 };
 
-export const getColocationDetails: RequestHandler = async (req, res, next) => {
+export const getColocationDetails = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const userId = req.user?._id.toString();
+    if (!userId) {
+      res.status(401).json({
+        statusCode: 401,
+        errorCode: "UNAUTHORIZED",
+        errMessage: "User not authenticated",
+      });
+      return;
+    }
+
     const colocationId = req.params.id;
     const colocation = await colocationService.getColocationDetails(userId, colocationId);
 
@@ -111,14 +155,28 @@ export const getColocationDetails: RequestHandler = async (req, res, next) => {
     presenter.isActive = colocation.isActive;
 
     res.status(200).json(presenter);
+    return;
   } catch (error) {
     next(error);
   }
 };
 
-export const deleteColocation: RequestHandler = async (req, res, next) => {
+export const deleteColocation = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const userId = req.user?._id.toString();
+    if (!userId) {
+      res.status(401).json({
+        statusCode: 401,
+        errorCode: "UNAUTHORIZED",
+        errMessage: "User not authenticated",
+      });
+      return;
+    }
+
     const colocationId = req.params.id;
     const result = await colocationService.deleteColocation(userId, colocationId);
 
@@ -134,12 +192,17 @@ export const deleteColocation: RequestHandler = async (req, res, next) => {
     res.status(200).json({
       message: "Colocation successfully soft-deleted",
     });
+    return;
   } catch (error) {
     next(error);
   }
 };
 
-export const addMemberToColocation: RequestHandler = async (req, res, next) => {
+export const addMemberToColocation = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const dto = plainToInstance(AddMemberDTO, req.body, { excludeExtraneousValues: true });
     const errors = await validate(dto);
@@ -155,6 +218,15 @@ export const addMemberToColocation: RequestHandler = async (req, res, next) => {
     }
 
     const userId = req.user?._id.toString();
+    if (!userId) {
+      res.status(401).json({
+        statusCode: 401,
+        errorCode: "UNAUTHORIZED",
+        errMessage: "User not authenticated",
+      });
+      return;
+    }
+
     const updated = await colocationService.addMember(userId, dto);
 
     if (!updated) {
@@ -169,12 +241,17 @@ export const addMemberToColocation: RequestHandler = async (req, res, next) => {
     res.status(200).json({
       message: "Member added successfully",
     });
+    return;
   } catch (error) {
     next(error);
   }
 };
 
-export const removeMemberFromColocation: RequestHandler = async (req, res, next) => {
+export const removeMemberFromColocation = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const dto = plainToInstance(AddMemberDTO, req.body, { excludeExtraneousValues: true });
     const errors = await validate(dto);
@@ -190,6 +267,15 @@ export const removeMemberFromColocation: RequestHandler = async (req, res, next)
     }
 
     const userId = req.user?._id.toString();
+    if (!userId) {
+      res.status(401).json({
+        statusCode: 401,
+        errorCode: "UNAUTHORIZED",
+        errMessage: "User not authenticated",
+      });
+      return;
+    }
+
     const updated = await colocationService.removeMember(userId, dto);
 
     if (!updated) {
@@ -204,12 +290,17 @@ export const removeMemberFromColocation: RequestHandler = async (req, res, next)
     res.status(200).json({
       message: "Member removed successfully",
     });
+    return;
   } catch (error) {
     next(error);
   }
 };
 
-export const transferOwnership: RequestHandler = async (req, res, next) => {
+export const transferOwnership = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const dto = plainToInstance(TransferOwnershipDTO, req.body, {
       excludeExtraneousValues: true,
@@ -227,6 +318,15 @@ export const transferOwnership: RequestHandler = async (req, res, next) => {
     }
 
     const userId = req.user?._id.toString();
+    if (!userId) {
+      res.status(401).json({
+        statusCode: 401,
+        errorCode: "UNAUTHORIZED",
+        errMessage: "User not authenticated",
+      });
+      return;
+    }
+
     const updated = await colocationService.transferOwnership(
       userId,
       dto.colocationId,
@@ -245,6 +345,7 @@ export const transferOwnership: RequestHandler = async (req, res, next) => {
     res.status(200).json({
       message: "Ownership transferred successfully",
     });
+    return;
   } catch (error) {
     next(error);
   }
