@@ -13,7 +13,7 @@ import {
 const router = Router();
 
 router.get("/", authMiddleware, listUserColocations);
-router.post("/register", createColocation);
+router.post("/register", authMiddleware, createColocation);
 router.get("/:id", authMiddleware, getColocationDetails);
 router.delete("/:id", authMiddleware, deleteColocation);
 

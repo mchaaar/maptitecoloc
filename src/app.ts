@@ -5,7 +5,6 @@ import userRoutes from "./routes/user/user.routes";
 import colocationRoutes from "./routes/colocation/colocation.routes";
 import taskRoutes from "./routes/user/task.routes";
 
-
 const app = express();
 
 app.use(express.json());
