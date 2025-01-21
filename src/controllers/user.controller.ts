@@ -144,15 +144,24 @@ export const refreshToken = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const { refreshToken } = req.body;
-    if (!refreshToken) {
+
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
       const err: any = new Error("Refresh token is required");
       err.statusCode = 400;
       err.code = "TOKEN_REQUIRED";
       throw err;
     }
 
-    const payload = userService.verifyRefreshToken(refreshToken);
+    const [scheme, token] = authHeader.split(" ");
+    if (!token || scheme !== "Bearer") {
+      const err: any = new Error("Invalid Authorization format");
+      err.statusCode = 400;
+      err.code = "INVALID_AUTHORIZATION_FORMAT";
+      throw err;
+    }
+
+    const payload = userService.verifyRefreshToken(token);
     if (!payload || !payload.userId) {
       const err: any = new Error("Invalid refresh token");
       err.statusCode = 401;
