@@ -1,5 +1,5 @@
 import { Expose } from "class-transformer";
-import { IsEmail, IsNotEmpty, IsString, MinLength, IsInt, Min } from "class-validator";
+import { IsEmail, IsNotEmpty, IsString, MinLength, IsInt, Min, IsDateString, IsEnum} from "class-validator";
 
 export class UserToCreateDTO {
   @Expose()
@@ -41,4 +41,29 @@ export class UserLoginDTO {
   @IsString()
   @IsNotEmpty()
   password: string;
+}
+
+export enum TaskStatus {
+  PENDING = "pending",
+  COMPLETED = "completed",
+}
+
+export class TaskToCreateDTO {
+  @Expose()
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @Expose()
+  @IsString()
+  @IsNotEmpty()
+  assignedTo: string;
+
+  @Expose()
+  @IsDateString()
+  dueDate: string;
+
+  @Expose()
+  @IsEnum(TaskStatus)
+  status: TaskStatus;
 }

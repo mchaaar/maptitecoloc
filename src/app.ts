@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import userRoutes from "./routes/user/user.routes";
+import taskRoutes from "./routes/user/task.routes";
+
 
 const app = express();
 
@@ -15,17 +17,11 @@ app.get("/", (req, res) => {
 
 app.use("/api/users", userRoutes);
 
+app.use("/api/tasks", taskRoutes);
+
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error(err);
 
-  /**
-   * By default:
-   * {
-   *   statusCode: 500,
-   *   errorCode: "INTERNAL_SERVER_ERROR",
-   *   errMessage: "An unexpected error occurred"
-   * }
-   */
   const statusCode = err.statusCode || 500;
   const errorCode = err.code || "INTERNAL_SERVER_ERROR";
   const errMessage = err.message || "An unexpected error occurred";
